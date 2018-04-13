@@ -2,6 +2,7 @@ import gdal
 import ogr
 import osr
 import os
+import pandas as pd
 
 path = './test_data'
 
@@ -68,35 +69,39 @@ for p in paths:
             # Transform points
             ul = transform.TransformPoint(ulx, uly)
             lr = transform.TransformPoint(lrx, lry)
-            # print(ul)
-            # print(lr)
+
             bbox = { 'fileName': fileName, 'ul': ul, 'lr': lr }
             coordinates.append(bbox)
 
-print(coordinates)
-
+# Convert to degrees, minutes, seconds
 def decdeg2dms(dd):
     is_positive = dd >= 0
     dd = abs(dd)
     minutes, seconds = divmod(dd*3600,60)
     degrees, minutes = divmod(minutes,60)
     degrees = degrees if is_positive else -degrees
-    return (degrees,minutes,seconds)
+    return (degrees,minutes,round(seconds, 2))
 
-# lyr = dataset.GetLayer()
+def decdeg2dmsTuples(ddInfo):
+    w = decdeg2dms(ddInfo['ul'][0])
+    e = decdeg2dms(ddInfo['lr'][0])
+    n = decdeg2dms(ddInfo['ul'][1])
+    s = decdeg2dms(ddInfo['ul'][1])
+    return { 'fileName': ddInfo['fileName'],'w': w,'e': e,'n': n,'s': s }
 
-# Obtain Layer extent
-# numLayers = dataset.GetLayerCount()
-# print('numLayers', numLayers)
-#
-# for l in range(numLayers):
-#     layer = dataset.GetLayer(l)
-#     extent = layer.GetExtent()
-#     print(extent)
+dmsBoundaries = [decdeg2dmsTuples(ddInfo) for ddInfo in coordinates]
 
+# Convert to csv
+columns = ['West', 'East', 'North', 'South']
+index = [boundary['fileName'] for boundary in dmsBoundaries]
+df = pd.DataFrame(columns=columns, index=index)
 
-# Obtain feature extent
-# for feature in lyr:
-#     geom = feature.GetGeometryRef()
-#     extent = geom.GetEnvelope()
-#     print(extent)
+for boundary in dmsBoundaries:
+    df['West'][boundary['fileName']] = boundary['w']
+    df['East'][boundary['fileName']] = boundary['e']
+    df['North'][boundary['fileName']] = boundary['n']
+    df['South'][boundary['fileName']] = boundary['s']
+
+print(df)
+
+df.to_csv('boundaries.csv', sep=',')
