@@ -1,5 +1,4 @@
 import gdal
-import ogr
 import osr
 import os
 import pandas as pd
@@ -80,7 +79,7 @@ def decdeg2dms(dd):
     minutes, seconds = divmod(dd*3600,60)
     degrees, minutes = divmod(minutes,60)
     degrees = degrees if is_positive else -degrees
-    return (degrees,minutes,round(seconds, 2))
+    return (int(degrees), int(minutes),int(round(seconds, 1)))
 
 def decdeg2dmsTuples(ddInfo):
     w = decdeg2dms(ddInfo['ul'][0])
@@ -92,16 +91,39 @@ def decdeg2dmsTuples(ddInfo):
 dmsBoundaries = [decdeg2dmsTuples(ddInfo) for ddInfo in coordinates]
 
 # Convert to csv
-columns = ['West', 'East', 'North', 'South']
+columns = ['West', 'East', 'North', 'South', '255C']
 index = [boundary['fileName'] for boundary in dmsBoundaries]
 df = pd.DataFrame(columns=columns, index=index)
 
+def joinTup (bounds, direction):
+    threeDigitBounds = '{:03}'.format(bounds[0]).replace('-', '0')
+
+    if bounds[0] >= 0:
+        if direction == 'WE':
+            threeDigitBounds = 'E' + threeDigitBounds
+        elif direction == 'NS':
+            threeDigitBounds = 'N' + threeDigitBounds
+    elif int(bounds[0]) < 0:
+        if direction == 'WE':
+            threeDigitBounds = 'W' + threeDigitBounds
+        elif direction == 'NS':
+            threeDigitBounds = 'S' + threeDigitBounds
+
+    # ('{:03}'.format(int(degrees)),'{:02}'.format(int(minutes)),'{:02}'.format(int(round(seconds, 1))))
+    print(bounds)
+    print(threeDigitBounds + '{:02}'.format(bounds[1]) + '{:02}'.format(bounds[2]))
+    return threeDigitBounds + '{:02}'.format(bounds[1]) + '{:02}'.format(bounds[2])
+
 for boundary in dmsBoundaries:
-    df['West'][boundary['fileName']] = boundary['w']
-    df['East'][boundary['fileName']] = boundary['e']
-    df['North'][boundary['fileName']] = boundary['n']
-    df['South'][boundary['fileName']] = boundary['s']
+    df['West'][boundary['fileName']] = joinTup(boundary['w'], 'WE')
+    df['East'][boundary['fileName']] = joinTup(boundary['e'], 'WE')
+    df['North'][boundary['fileName']] = joinTup(boundary['n'], 'NS')
+    df['South'][boundary['fileName']] = joinTup(boundary['s'], 'NS')
+    # (E010°48′40″--E010°48′54″/N063°32′40″--N063°32′34″) / W E N S
 
-print(df)
+    # Write function split joinTup(boundary['w'], 'WE' adding in ° etc.
+    df['255C'][boundary['fileName']] = '(%s°%s′%s″--%s°%s′%s″/%s°%s′%s″--%s°%s′%s″)' % ( str(boundary['w'][0]), boundary['w'][1], boundary['w'][2], boundary['e'][0], boundary['e'][1], boundary['e'][2], boundary['n'][0], boundary['n'] [1], boundary['n'][2], boundary['s'][0], boundary['s'][1], boundary['s'][2])
+    print(df['255C'][boundary['fileName']])
 
-df.to_csv('boundaries.csv', sep=',')
+
+df.to_csv('boundaries.csv', sep=',', encoding='utf8')
