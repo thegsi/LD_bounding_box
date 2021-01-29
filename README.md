@@ -17,10 +17,15 @@ Followed by creating and activating a virtual env:
 `python3 -m venv gdal_env`
 `source gdal_env/bin/activate`
 
-And then installing the dependencies inside the virtual enve:
+And then installing the dependencies inside the virtual env:
 
 `pip install gdal`
 `pip install osr`
+
+Install gdal, note: python gdal must match system gdal
+
+Check system version using `gdalinfo --version`
+Match with pip eg `pip install gdal==2.4`
 
 Run the script within the virtual env:
 

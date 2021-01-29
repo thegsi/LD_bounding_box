@@ -4,3 +4,5 @@ venv
 test_data
 
 boundaries.csv
+
+/LD_bounding_box

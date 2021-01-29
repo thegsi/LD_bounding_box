@@ -12,6 +12,7 @@ def getFiles (path):
     return paths
 
 paths = getFiles(path)
+
 coordinates = []
 
 for p in paths:
@@ -39,10 +40,9 @@ for p in paths:
                     target.ImportFromEPSG(4326)
                     transform = osr.CoordinateTransformation(source, target)
 
-                    ul = transform.TransformPoint(extent[0], extent[2])
-                    lr = transform.TransformPoint(extent[1], extent[3])
-                    # print(ul)
-                    # print(lr)
+                    ul = transform.TransformPoint(extent[0], extent[3])
+                    lr = transform.TransformPoint(extent[1], extent[2])
+
                     bbox = { 'fileName': fileName, 'ul': ul, 'lr': lr }
                     coordinates.append(bbox)
 
@@ -85,7 +85,7 @@ def decdeg2dmsTuples(ddInfo):
     w = decdeg2dms(ddInfo['ul'][0])
     e = decdeg2dms(ddInfo['lr'][0])
     n = decdeg2dms(ddInfo['ul'][1])
-    s = decdeg2dms(ddInfo['ul'][1])
+    s = decdeg2dms(ddInfo['lr'][1])
     return { 'fileName': ddInfo['fileName'],'w': w,'e': e,'n': n,'s': s }
 
 dmsBoundaries = [decdeg2dmsTuples(ddInfo) for ddInfo in coordinates]
@@ -123,6 +123,6 @@ for boundary in dmsBoundaries:
     df['South'][boundary['fileName']] = formatCoord(boundary['s'], 'NS')
 
     df['255C'][boundary['fileName']] = '(%s--%s/%s--%s)' % (formatCoordDMS(df['West'][boundary['fileName']]), formatCoordDMS(df['East'][boundary['fileName']]), formatCoordDMS(df['North'][boundary['fileName']]), formatCoordDMS(df['South'][boundary['fileName']]))
-    print(df['255C'][boundary['fileName']])
+    # print(df['255C'][boundary['fileName']])
 
 df.to_csv('boundaries.csv', sep=',', encoding='utf-8')
