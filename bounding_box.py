@@ -2,17 +2,23 @@ import gdal
 import osr
 import os
 import pandas as pd
+import pdb
 
 path = './test_data'
 
 def getFiles (path):
     paths = []
     for (dirpath, dirnames, filenames) in os.walk(path):
-        paths.append([dirpath, filenames] )
+        clean_filenames = []
+        barred_file_exts = ['jpg', 'csv', 'xls', 'lsx', 'ovr', 'aux']
+        for f in filenames:
+            if f[-3:] not in barred_file_exts:
+                clean_filenames.append(f)
+
+        paths.append([dirpath, clean_filenames] )
     return paths
 
 paths = getFiles(path)
-
 coordinates = []
 
 for p in paths:
