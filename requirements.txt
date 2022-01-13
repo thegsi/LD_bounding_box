@@ -1,0 +1,16 @@
+coverage==5.3.1
+deprecation==2.1.0
+eyed3==0.9.6
+filetype==1.0.7
+GDAL==2.4.0
+numpy==1.19.5
+OSR==0.0.1
+packaging==20.8
+pandas==1.2.0
+Pillow==8.1.0
+pyglet==1.1.4
+pyparsing==2.4.7
+python-dateutil==2.8.1
+pytz==2020.5
+six==1.15.0
+toml==0.10.2

@@ -4,13 +4,13 @@ import os
 import pandas as pd
 import pdb
 
-path = './test_data'
+path = './data'
 
 def getFiles (path):
     paths = []
     for (dirpath, dirnames, filenames) in os.walk(path):
         clean_filenames = []
-        barred_file_exts = ['jpg', 'csv', 'xls', 'lsx', 'ovr', 'aux']
+        barred_file_exts = ['jpg', 'csv', 'xls', 'lsx', 'ovr', 'aux', 'asc']
         for f in filenames:
             if f[-3:] not in barred_file_exts:
                 clean_filenames.append(f)

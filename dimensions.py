@@ -6,13 +6,13 @@ import warnings
 Image.MAX_IMAGE_PIXELS = None
 warnings.simplefilter('ignore', Image.DecompressionBombWarning)
 
-path = './test_data'
+path = './data'
 
 def getFiles (path):
     paths = []
     for (dirpath, dirnames, filenames) in os.walk(path):
         clean_filenames = []
-        barred_file_exts = ['jpg', 'csv', 'xls', 'lsx', 'ovr', 'aux', 'xml']
+        barred_file_exts = ['jpg', 'csv', 'xls', 'lsx', 'ovr', 'aux', 'xml', 'asc']
         for f in filenames:
             if f[-3:] not in barred_file_exts:
                 clean_filenames.append(f)

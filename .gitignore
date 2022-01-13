@@ -1,7 +1,8 @@
 venv
 .DS_Store
 
-test_data
+data
+geotiffs
 
 boundaries.csv
 dimensions.csv
